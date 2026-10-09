@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>EL ESTRATEGA — Diálogo con el Mentor | Humano Digital JARVIS</title>
+<meta name="description" content="Humano digital estilo JARVIS: El Estratega. Ajedrez, estrategia e IA con voz en tiempo real.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,ital,wght@9..144,0,600;9..144,1,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={theme:{extend:{colors:{void:'#050607',panel:'#0a0f14',cy:'#38e1ff',ember:'#ff4a2d',gold:'#d8b36a'},fontFamily:{grotesk:['Space Grotesk','sans-serif'],serif:['Fraunces','serif'],mono:['IBM Plex Mono','monospace']}}}}
+</script>
+<style>
+:root{--cy:#38e1ff;--ember:#ff4a2d}
+html,body{background:#050607;color:#e8f1f5;font-family:'Space Grotesk',sans-serif;min-height:100dvh}
+body::before{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(900px 500px at 15% 10%,rgba(56,225,255,.10),transparent 60%),radial-gradient(900px 600px at 85% 15%,rgba(255,74,45,.14),transparent 60%),radial-gradient(700px 700px at 50% 110%,rgba(56,225,255,.06),transparent 60%)}
+body::after{content:'';position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E")}
+*{transition-timing-function:cubic-bezier(.32,.72,0,1)!important}
+.bezel{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.10);padding:6px;border-radius:2rem}
+.bezel-core{background:rgba(5,9,13,.78);border:1px solid rgba(255,255,255,.06);border-radius:calc(2rem - .375rem);box-shadow:inset 0 1px 1px rgba(255,255,255,.12),0 30px 80px -30px rgba(0,0,0,.9)}
+.pill{border-radius:999px}
+.btn-primary{background:linear-gradient(135deg,#38e1ff,#1a98ff 55%,#ff4a2d 130%);color:#02141a;box-shadow:0 10px 40px -8px rgba(56,225,255,.55),inset 0 1px 1px rgba(255,255,255,.6)}
+.btn-primary:active{transform:scale(.98)}
+.btn-ghost{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04)}
+.btn-ghost:active{transform:scale(.98)}
+.icon-circle{width:2rem;height:2rem;border-radius:999px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.18);flex:none}
+.group:hover .icon-circle{transform:translate(2px,-2px) scale(1.05)}
+.eyebrow{border-radius:999px;padding:.3rem .75rem;font-size:10px;letter-spacing:.22em;text-transform:uppercase;border:1px solid rgba(56,225,255,.3);color:#9be9ff;background:rgba(56,225,255,.07);font-family:'IBM Plex Mono',monospace}
+#stage{position:absolute;inset:0;width:100%;height:100%;display:block}
+.scanline{position:absolute;left:0;right:0;height:120px;top:-20%;background:linear-gradient(to bottom,transparent,rgba(56,225,255,.10),transparent);animation:scan 5s cubic-bezier(.32,.72,0,1) infinite;pointer-events:none}
+.cine-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 38%,transparent 52%,rgba(0,0,0,.55) 100%),linear-gradient(to bottom,rgba(56,225,255,.05),transparent 18%,transparent 82%,rgba(0,0,0,.5))}
+#portraitWrap{position:absolute;inset:0;overflow:hidden;display:none}
+#portraitBlur{position:absolute;inset:-6%;width:112%;height:112%;object-fit:cover;object-position:center 20%;filter:blur(28px) brightness(.45) saturate(1.25)}
+#portrait{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center 50% 30%;transform:scale(1.62);transform-origin:50% 16%;animation:kenburns 26s cubic-bezier(.32,.72,0,1) infinite alternate;will-change:transform;filter:drop-shadow(0 30px 60px rgba(0,0,0,.6))}
+#portraitVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center 50% 30%;transform:scale(1.62);transform-origin:50% 16%;filter:drop-shadow(0 30px 60px rgba(0,0,0,.6))}
+@keyframes kenburns{from{transform:scale(1.55)}to{transform:scale(1.72) translateY(-1%)}}
+#portraitGlow{position:absolute;inset:0;pointer-events:none;display:none;box-shadow:inset 0 0 120px 30px rgba(56,225,255,.28);opacity:.3}
+#chatPanel>div:not(:last-child){display:none}
+#chatPanel .bezel-core{border-radius:1.25rem}
+@keyframes scan{0%{top:-20%}60%,100%{top:110%}}
+.wavebar{width:3px;border-radius:99px;background:linear-gradient(to top,#38e1ff,#ff4a2d);transform-origin:bottom;transition:transform .12s cubic-bezier(.32,.72,0,1)}
+.chat-scroll{scrollbar-width:thin;scrollbar-color:rgba(56,225,255,.4) transparent}
+.chat-scroll::-webkit-scrollbar{width:6px}.chat-scroll::-webkit-scrollbar-thumb{background:rgba(56,225,255,.3);border-radius:99px}
+.reveal{opacity:0;transform:translateY(28px);filter:blur(8px)}
+.reveal.in{opacity:1;transform:none;filter:none;transition:all .9s cubic-bezier(.32,.72,0,1)}
+input,textarea{outline:none}
+input:focus{border-color:rgba(56,225,255,.6)!important;box-shadow:0 0 0 4px rgba(56,225,255,.12)}
+@media(max-width:900px){.split{grid-template-columns:1fr!important}.hud-right{order:2}.hud-left{order:1;min-height:62dvh}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body class="relative overflow-x-hidden">
+<!-- BOOT -->
+<div id="boot" class="fixed inset-0 z-[100] bg-[#050607] flex items-center justify-center p-6">
+<div class="w-full max-w-md bezel"><div class="bezel-core p-8 text-center">
+<div class="eyebrow inline-block mb-5">Vértice · Sistemas</div>
+<h1 class="font-serif text-4xl leading-none mb-2">EL <span class="italic text-[#38e1ff]">ESTRATEGA</span></h1>
+<p class="font-mono text-[11px] tracking-[.2em] text-white/50 mb-6">INICIALIZANDO INTERFAZ JARVIS</p>
+<div class="h-1 rounded-full bg-white/10 overflow-hidden mb-3"><div id="bootbar" class="h-full w-0 bg-gradient-to-r from-[#38e1ff] to-[#ff4a2d]"></div></div>
+<p id="bootmsg" class="font-mono text-xs text-[#9be9ff]">Calibrando reactor…</p>
+</div></div>
+</div>
+
+<!-- NAV -->
+<header class="relative z-20 flex justify-center pt-5 px-4">
+<nav class="bezel !rounded-full w-full max-w-6xl"><div class="bezel-core !rounded-full flex items-center gap-3 pl-5 pr-2 py-2">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full grid place-items-center font-bold text-[#02141a]" style="background:conic-gradient(from 20deg,#38e1ff,#1a98ff,#ff4a2d,#38e1ff)">E</div>
+<div class="leading-tight"><p class="font-bold tracking-wide text-sm">EL ESTRATEGA</p><p class="font-mono text-[10px] text-white/50 tracking-[.2em]">HUMANO DIGITAL · JARVIS EDITION</p></div>
+</div>
+<div class="hidden md:flex items-center gap-2 ml-6 font-mono text-[11px] text-white/60">
+<span class="flex items-center gap-2"><i id="dot" class="w-2 h-2 rounded-full bg-white/30 inline-block"></i><span id="status">en espera</span></span>
+<span class="opacity-30">/</span><span id="fps">60 fps</span><span class="opacity-30">/</span><span id="syncstat">sync char+audio</span>
+</div>
+<div class="ml-auto flex items-center gap-2">
+<button id="btnDemoTop" class="btn-ghost pill px-4 py-2 text-sm hidden sm:block">Demo sin conexión</button>
+<button id="btnConfig" class="btn-ghost pill px-4 py-2 text-sm">Configurar</button>
+<button id="btnTalk" class="btn-primary pill pl-4 pr-1.5 py-1.5 font-bold text-sm group flex items-center gap-2">HABLAR <span class="icon-circle">↗</span></button>
+</div>
+</div></nav>
+</header>
+
+<!-- MAIN -->
+<main class="relative z-10 max-w-[1500px] mx-auto px-3 pb-16 pt-5">
+<div class="flex flex-col gap-4">
+
+<!-- 3D -->
+<section class="bezel reveal in"><div class="bezel-core overflow-hidden relative" style="min-height:72dvh">
+<div id="wrap3d" class="relative w-full" style="height:72dvh;min-height:560px">
+<canvas id="stage"></canvas>
+<div id="portraitWrap"><img id="portraitBlur" alt="" aria-hidden="true">
+<img id="portrait" alt="El Estratega — retrato">
+<video id="portraitVideo" playsinline preload="auto" style="display:none"></video></div>
+<div id="portraitGlow"></div>
+<div class="cine-vignette"></div>
+<div class="scanline"></div>
+<!-- HUD overlay -->
+<div class="absolute top-4 left-4 flex flex-col gap-2 pointer-events-none">
+<div class="eyebrow">Sala privada · 21:47 ·En línea</div>
+<div class="font-mono text-[10px] text-white/60 bg-black/50 border border-white/10 rounded-full px-3 py-1.5">Arrastra 360° · rueda zoom · ← → girar · <button id="btnFront2" class="underline text-[#9be9ff] pointer-events-auto">volver al frente</button></div>
+</div>
+<div class="absolute top-4 right-4 flex gap-2">
+<div class="bg-black/60 border border-white/10 rounded-2xl px-3 py-2 font-mono text-[10px] leading-relaxed text-right">REACTOR <span id="stReactor" class="text-[#38e1ff]">98%</span><br>MOTOR <span class="text-[#9be9ff]">eleven_flash</span><br>MODO <span id="stMode" class="text-[#ffd28a]">listo</span></div>
+</div>
+<!-- bottom controls -->
+<div class="absolute bottom-4 left-4 right-4">
+<div class="bezel !rounded-2xl"><div class="bezel-core !rounded-2xl p-3 flex flex-wrap items-center gap-2">
+<div class="flex items-end gap-[3px] h-8 px-2" id="wave" aria-hidden="true"></div>
+<button id="btnTalk2" class="btn-primary pill px-5 py-2.5 text-sm font-bold group flex items-center gap-2">Hablar <span class="icon-circle">◉</span></button>
+<button id="btnDemo" class="btn-ghost pill px-4 py-2.5 text-sm">Escucharlo sin conectarse</button>
+<button id="btnFront" class="btn-ghost pill px-4 py-2.5 text-sm">Volver al frente</button>
+<button id="btnJaw" class="btn-ghost pill px-4 py-2.5 text-sm">Probar boca</button>
+<button id="btnFace" class="btn-ghost pill px-4 py-2.5 text-sm">Plano cara</button>
+<button id="btnPortrait" class="btn-ghost pill px-4 py-2.5 text-sm" style="display:none">Retrato real</button>
+<div class="ml-auto font-mono text-[10px] text-white/50 hidden lg:block">mic + voz ElevenLabs · <span class="text-white/80">texto también abajo</span> · tono: <span id="mood" class="text-[#9be9ff]">—</span></div>
+</div></div>
+</div>
+<div id="toast" class="absolute left-1/2 -translate-x-1/2 bottom-24 bg-black/80 border border-[#38e1ff]/30 text-sm px-4 py-2 rounded-full hidden whitespace-nowrap"></div>
+</div>
+<div class="px-5 py-4 border-t border-white/10 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[11px] text-white/60">
+<span>BOCA <span class="text-white">A·E·O·M</span> por letra + energía real</span>
+<span>MIRADA <span class="text-white">sigue al cursor</span></span>
+<span>COARTICULACIÓN <span class="text-white">activa</span></span>
+<span>TRANSPARENCIA <span class="text-[#9be9ff]">recreación con IA</span></span>
+</div>
+</div></section>
+
+<!-- RIGHT HUD -->
+<aside class="flex flex-col gap-4 hud-right" id="chatPanel">
+<div class="bezel reveal in"><div class="bezel-core p-5">
+<div class="eyebrow inline-block mb-3">Transmisión en vivo</div>
+<h2 class="font-serif text-3xl leading-tight mb-2">Piense su <span class="italic text-[#38e1ff]">próxima jugada.</span></h2>
+<p class="text-white/65 text-sm leading-relaxed mb-4">Mitad humano, mitad máquina. Mentor de ajedrez, estrategia y decisiones bajo presión. Pregúntele por una apertura, una derrota o una decisión que no lo deja dormir.</p>
+<div class="grid grid-cols-3 gap-2 font-mono text-center text-[11px]">
+<div class="rounded-2xl border border-white/10 bg-white/5 p-3"><p class="text-2xl font-bold text-white" id="kMin">00</p><p class="text-white/50 tracking-widest">MIN</p></div>
+<div class="rounded-2xl border border-white/10 bg-white/5 p-3"><p class="text-2xl font-bold text-[#38e1ff]" id="kFrases">0</p><p class="text-white/50 tracking-widest">FRASES</p></div>
+<div class="rounded-2xl border border-white/10 bg-white/5 p-3"><p class="text-2xl font-bold text-[#ff8a6a]" id="kEnergia">0%</p><p class="text-white/50 tracking-widest">VOZ</p></div>
+</div>
+</div></div>
+
+<div class="bezel reveal in"><div class="bezel-core p-4">
+<div class="flex items-center justify-between mb-2"><p class="font-mono text-[11px] tracking-[.2em] text-white/60">SINCROLABIAL · FONEMAS ES</p><p class="font-mono text-[10px] text-white/40">offset <span id="offLabel">0</span>ms</p></div>
+<div class="grid grid-cols-4 gap-2" id="visemes">
+<div class="rounded-xl bg-white/5 border border-white/10 p-2 text-center"><div class="h-10 flex items-end justify-center"><div id="vA" class="wavebar" style="height:20%"></div></div><p class="font-mono text-[10px] mt-1">A ABIERTA</p></div>
+<div class="rounded-xl bg-white/5 border border-white/10 p-2 text-center"><div class="h-10 flex items-end justify-center"><div id="vE" class="wavebar" style="height:20%"></div></div><p class="font-mono text-[10px] mt-1">E/I ESTIRA</p></div>
+<div class="rounded-xl bg-white/5 border border-white/10 p-2 text-center"><div class="h-10 flex items-end justify-center"><div id="vO" class="wavebar" style="height:20%"></div></div><p class="font-mono text-[10px] mt-1">O/U REDONDA</p></div>
+<div class="rounded-xl bg-white/5 border border-white/10 p-2 text-center"><div class="h-10 flex items-end justify-center"><div id="vM" class="wavebar" style="height:20%"></div></div><p class="font-mono text-[10px] mt-1">M/B/P CIERRA</p></div>
+</div>
+<p id="liveText" class="mt-3 font-serif italic text-lg text-[#cfeef8] min-h-[2rem]">— toque Hablar y pregunte: “¿qué harías con mi posición?” —</p>
+</div></div>
+
+<div class="bezel reveal in flex-1"><div class="bezel-core p-4 flex flex-col" style="min-height:320px">
+<p class="font-mono text-[11px] tracking-[.2em] text-white/60 mb-2">DIÁLOGO</p>
+<div id="chat" class="chat-scroll flex-1 overflow-y-auto flex flex-col gap-2 pr-1" style="max-height:300px"></div>
+<form id="chatform" class="mt-3 flex gap-2">
+<input id="chatinput" class="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2.5 text-sm placeholder:text-white/30" placeholder="Escriba su jugada o pregunta… (Enter para enviar)">
+<button class="btn-primary pill px-4 py-2 text-sm font-bold">Enviar</button>
+</form>
+<p class="font-mono text-[10px] text-white/40 mt-2">Si hay sesión activa el texto va al agente. Si no, lo dice la demo local.</p>
+</div></div>
+</aside>
+</div>
+
+<!-- PROTOCOLS -->
+<section class="grid md:grid-cols-3 gap-4 mt-4">
+<div class="bezel reveal"><div class="bezel-core p-5"><div class="eyebrow inline-block mb-3">Protocolo 01</div><h3 class="font-bold text-lg mb-1">Apertura sin miedo</h3><p class="text-sm text-white/60 mb-3">Tres caminos para romper el hielo táctico.</p><div class="flex flex-wrap gap-2"><button data-q="¿Qué apertura me recomiendas si siempre juego a la defensiva?" class="btn-ghost pill px-3 py-1.5 text-xs qbtn">Soy defensivo</button><button data-q="Estoy por tomar una decisión difícil en mi trabajo. ¿Cómo la pensarías en un tablero?" class="btn-ghost pill px-3 py-1.5 text-xs qbtn">Decisión difícil</button><button data-q="Cuéntame tu peor derrota y qué te enseñó." class="btn-ghost pill px-3 py-1.5 text-xs qbtn">Tu peor derrota</button></div></div></div>
+<div class="bezel reveal"><div class="bezel-core p-5"><div class="eyebrow inline-block mb-3">Protocolo 02</div><h3 class="font-bold text-lg mb-1">Aula sin fricción</h3><p class="text-sm text-white/60">Demo local con voz del dispositivo, cero créditos. Ideal para proyectar. Luego pasa a Hablar para el duelo real con ElevenLabs.</p></div></div>
+<div class="bezel reveal"><div class="bezel-core p-5"><div class="eyebrow inline-block mb-3">Ética · Fuentes</div><h3 class="font-bold text-lg mb-1">Recreación declarada</h3><p class="text-sm text-white/60">Es una interpretación artística con IA, no una persona real. El agente admite ser IA, distingue dato de opinión y no sustituye fuentes. Micrófono y voz viajan a ElevenLabs.</p></div></div>
+</section>
+
+<details class="bezel mt-4 reveal"><summary class="bezel-core px-5 py-4 cursor-pointer font-mono text-xs tracking-widest text-[#9be9ff]">VER GUÍA RÁPIDA: AGENT ID · OFFSET · DOMINIOS</summary><div class="px-5 py-4 text-sm text-white/70 leading-relaxed border-t border-white/10">
+1) Crea el agente como dice el README y copia el <code class="text-[#ffd28a]">agent_…</code>. 2) Botón Configurar → pegar → Guardar. La clave XI nunca va en esta página. 3) Si la boca adelanta/atrasa, ajusta offset ±40ms. 4) En ElevenLabs → Security → Allowed domains agrega tu dominio de GitHub Pages. 5) Hablar pide micrófono por websocket con <code>@elevenlabs/client 1.26.0</code> (jsDelivr + esm.sh).
+</div></details>
+<footer class="mt-8 flex flex-wrap items-center gap-3 justify-between font-mono text-[11px] text-white/40"><span>VÉRTICE · EL ESTRATEGA · THREE.JS 0.160 + ELEVENLABS + WEB AUDIO</span><span>?agente=TU_ID para clonar personaje sin tocar código</span></footer>
+</main>
+
+<!-- CONFIG DRAWER -->
+<div id="drawer" class="fixed inset-0 z-[90] hidden"><div id="scrim" class="absolute inset-0 bg-black/70"></div>
+<aside class="absolute right-0 top-0 bottom-0 w-full max-w-md bezel !rounded-none !border-0 !p-2"><div class="bezel-core !rounded-3xl h-full p-6 overflow-y-auto">
+<div class="flex items-center justify-between mb-4"><h3 class="font-bold text-xl">Configurar voz</h3><button id="btnClose" class="btn-ghost pill px-3 py-1.5 text-sm">Cerrar</button></div>
+<label class="font-mono text-[11px] tracking-widest text-white/60">AGENT ID (ELEVENLABS)</label>
+<input id="agentId" class="mt-2 w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 font-mono text-sm" placeholder="agent_…">
+<div class="flex gap-2 mt-3"><button id="btnSave" class="btn-primary pill px-5 py-2.5 text-sm font-bold flex-1">Guardar</button><a id="btnTest" target="_blank" class="btn-ghost pill px-4 py-2.5 text-sm grid place-items-center">Probar ↗</a></div>
+<div class="mt-5"><label class="font-mono text-[11px] tracking-widest text-white/60">OFFSET BOCA/VOZ (<span id="offLabel2">0</span>ms)</label>
+<input id="offset" type="range" min="-300" max="300" step="10" value="0" class="w-full mt-2 accent-cyan-300"></div>
+<div class="mt-5 rounded-2xl border border-amber-200/20 bg-amber-100/5 p-4 text-sm text-amber-100/80">La <b>XI-API-KEY</b> no se pega aquí. Queda en tu cuenta ElevenLabs para créditos y límites. Esta página usa agente <b>público</b> + dominio permitido. Así puedes hablar todo lo que dé tu plan sin exponer la clave.</div>
+<div class="mt-4 text-sm text-white/60 leading-relaxed">Sin Agent ID puedes usar la demo local. Con Agent ID puedes hablar ilimitado según tu plan (Starter/Creator). Revisa consumo en ElevenLabs → Usage.</div>
+</div></aside></div>
+
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+import {EffectComposer} from 'three/addons/postprocessing/EffectComposer.js';
+import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
+import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
+import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+const $=s=>document.querySelector(s);
+const chat=$('#chat'), liveText=$('#liveText'), statusEl=$('#status'), dot=$('#dot'), toast=$('#toast');
+const vA=$('#vA'),vE=$('#vE'),vO=$('#vO'),vM=$('#vM');
+function say(who,text){const d=document.createElement('div');const me=who==='usted';d.className='rounded-2xl px-3 py-2 text-sm leading-relaxed border '+(me?'bg-[#38e1ff]/10 border-[#38e1ff]/25 ml-8':'bg-white/5 border-white/10 mr-8');d.innerHTML='<span class="font-mono text-[10px] tracking-widest '+(me?'text-[#38e1ff]':'text-white/50')+'">'+who.toUpperCase()+'</span><br>'+text;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;if(who!=='usted')liveText.textContent='“'+text.slice(0,140)+'”';const k=$('#kFrases');if(who!=='usted')k.textContent=(+k.textContent+1);}
+function showToast(t){toast.textContent=t;toast.classList.remove('hidden');clearTimeout(showToast._t);showToast._t=setTimeout(()=>toast.classList.add('hidden'),2400);}
+function setStatus(s,color){statusEl.textContent=s;dot.style.background=color||'#38e1ff';dot.style.boxShadow='0 0 12px '+(color||'#38e1ff');$('#stMode').textContent=s;}
+
+// wave bars
+const wave=$('#wave');const bars=[];for(let i=0;i<28;i++){const b=document.createElement('div');b.className='wavebar';b.style.height=(4+Math.random()*20)+'px';b.style.transform='scaleY(.3)';wave.appendChild(b);bars.push(b);}
+
+// ---------- THREE SCENE ----------
+const canvas=$('#stage'), wrap=$('#wrap3d');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x050607,0.045);
+scene.background=new THREE.Color(0x04060a);
+const pmrem=new THREE.PMREMGenerator(renderer);
+scene.environment=pmrem.fromScene(new RoomEnvironment(renderer),0.04).texture;
+const camera=new THREE.PerspectiveCamera(32,1,0.1,100);camera.position.set(0.15,1.62,3.7);
+const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,1.28,0);controls.enableDamping=true;controls.enablePan=false;controls.minDistance=2.0;controls.maxDistance=7;controls.maxPolarAngle=1.52;controls.minPolarAngle=0.6;controls.autoRotate=true;controls.autoRotateSpeed=0.45;
+let homePos=new THREE.Vector3(0.4,1.75,4.4),homeTg=new THREE.Vector3(0,1.25,0);
+let facePos=new THREE.Vector3(0.2,1.6,2.2),faceTg=new THREE.Vector3(0,1.5,0.5);
+let idleT=null;controls.addEventListener('start',()=>{controls.autoRotate=false;clearTimeout(idleT);});controls.addEventListener('end',()=>{clearTimeout(idleT);idleT=setTimeout(()=>controls.autoRotate=true,6000);});
+const composer=new EffectComposer(renderer);composer.setPixelRatio(Math.min(devicePixelRatio,2));
+composer.addPass(new RenderPass(scene,camera));
+const bloom=new UnrealBloomPass(new THREE.Vector2(960,600),0.5,0.65,0.8);
+composer.addPass(bloom);composer.addPass(new OutputPass());
+function resize(){const w=wrap.clientWidth,h=wrap.clientHeight;renderer.setSize(w,h,false);composer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}
+new ResizeObserver(resize).observe(wrap);resize();
+scene.add(new THREE.AmbientLight(0x8fb8c8,0.35));
+const key=new THREE.DirectionalLight(0xffb37a,2.4);key.position.set(-3,3.4,3);key.castShadow=true;key.shadow.mapSize.set(1024,1024);scene.add(key);
+const rim=new THREE.DirectionalLight(0x38e1ff,3.0);rim.position.set(3,2.2,-2);scene.add(rim);
+const under=new THREE.PointLight(0xff2a1a,6,8);under.position.set(0,0.4,1.2);scene.add(under);
+const faceKey=new THREE.SpotLight(0xffd9b0,30,14,0.5,0.65,1.6);faceKey.position.set(1.1,2.7,3.2);scene.add(faceKey);scene.add(faceKey.target);faceKey.target.position.set(0,1.55,0);
+const practicalL=new THREE.PointLight(0xff7a3c,8,7);practicalL.position.set(-2.6,2.6,-1.5);scene.add(practicalL);
+const practicalR=new THREE.PointLight(0x2fb9ff,8,7);practicalR.position.set(2.6,2.6,-1.5);scene.add(practicalR);
+
+// mansion backdrop: photo screen w/ cinematic fallback
+function mansionTex(){const c=document.createElement('canvas');c.width=1024;c.height=512;const g=c.getContext('2d');
+const gr=g.createLinearGradient(0,0,0,512);gr.addColorStop(0,'#0a0605');gr.addColorStop(0.55,'#2a0e08');gr.addColorStop(0.8,'#120806');gr.addColorStop(1,'#050607');g.fillStyle=gr;g.fillRect(0,0,1024,512);
+g.fillStyle='rgba(255,150,80,.10)';for(let i=0;i<3;i++){g.beginPath();g.arc(180+i*330,150,120,0,7);g.fill();}
+g.fillStyle='rgba(255,120,60,.16)';for(let i=0;i<26;i++){g.beginPath();g.arc(Math.random()*1024,Math.random()*300,2+Math.random()*7,0,7);g.fill();}
+g.fillStyle='rgba(56,225,255,.5)';g.fillRect(120,60,10,240);g.fillRect(894,60,10,240);
+g.fillStyle='rgba(0,0,0,.45)';g.fillRect(0,380,1024,132);return c;}
+const backCanvas=mansionTex();
+const backTex=new THREE.CanvasTexture(backCanvas);backTex.colorSpace=THREE.SRGBColorSpace;
+const backMat=new THREE.MeshBasicMaterial({map:backTex});
+const backScreen=new THREE.Mesh(new THREE.PlaneGeometry(11,5.6),backMat);backScreen.position.set(0,2.3,-5);scene.add(backScreen);
+new THREE.TextureLoader().load('assets/referencia.jpg',t=>{t.colorSpace=THREE.SRGBColorSpace;backMat.map=t;backMat.color.set(0x9a9a9a);backMat.needsUpdate=true;},undefined,()=>{});
+// velvet curtains
+function curtainTex(){const c=document.createElement('canvas');c.width=256;c.height=512;const g=c.getContext('2d');for(let x=0;x<256;x++){const v=Math.sin(x/256*Math.PI*9)*0.5+0.5;const r=40+v*90;g.fillStyle='rgb('+(r|0)+',8,10)';g.fillRect(x,0,1,512);}g.fillStyle='rgba(216,179,106,.8)';g.fillRect(0,0,256,10);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;}
+const curT=curtainTex();
+for(const s of[-1,1]){const cur=new THREE.Mesh(new THREE.PlaneGeometry(2.2,5.4),new THREE.MeshStandardMaterial({map:curT,roughness:.9,metalness:0}));cur.position.set(s*4.6,2.4,-3.4);cur.rotation.y=-s*0.35;scene.add(cur);}
+
+// floor chess
+function chessTex(){const c=document.createElement('canvas');c.width=c.height=1024;const g=c.getContext('2d');for(let y=0;y<8;y++)for(let x=0;x<8;x++){const l=(x+y)%2;const gr=g.createLinearGradient(x*128,y*128,x*128+128,y*128+128);if(l){gr.addColorStop(0,'#e6d6b4');gr.addColorStop(1,'#b89a6c');}else{gr.addColorStop(0,'#10151b');gr.addColorStop(1,'#05070a');}g.fillStyle=gr;g.fillRect(x*128,y*128,128,128);g.strokeStyle='rgba(0,0,0,.35)';g.strokeRect(x*128+1,y*128+1,126,126);}g.strokeStyle='rgba(56,225,255,.35)';g.lineWidth=3;g.strokeRect(8,8,1008,1008);g.strokeStyle='rgba(216,179,106,.5)';g.lineWidth=2;g.strokeRect(20,20,984,984);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t;}
+const floor=new THREE.Mesh(new THREE.CircleGeometry(5.6,72),new THREE.MeshStandardMaterial({map:chessTex(),roughness:.32,metalness:.25,envMapIntensity:.9}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+const glowDisc=new THREE.Mesh(new THREE.RingGeometry(1.05,1.35,64),new THREE.MeshBasicMaterial({color:0x38e1ff,transparent:true,opacity:.5,side:THREE.DoubleSide}));glowDisc.rotation.x=-Math.PI/2;glowDisc.position.y=0.01;scene.add(glowDisc);
+// floating dust motes catch the practicals
+// particles
+{const N=700,pos=new Float32Array(N*3),col=new Float32Array(N*3);for(let i=0;i<N;i++){pos[i*3]=(Math.random()-0.5)*9;pos[i*3+1]=Math.random()*4;pos[i*3+2]=(Math.random()-0.5)*9;const c=Math.random()>0.45?[0.22,0.88,1]:[1,0.3,0.15];col[i*3]=c[0];col[i*3+1]=c[1];col[i*3+2]=c[2];}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('color',new THREE.BufferAttribute(col,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:0.025,vertexColors:true,transparent:true,opacity:.8})));}
+// holo panels
+function holoTex(txt){const c=document.createElement('canvas');c.width=256;c.height=160;const g=c.getContext('2d');g.fillStyle='rgba(4,20,28,.85)';g.fillRect(0,0,256,160);g.strokeStyle='#38e1ff';g.strokeRect(6,6,244,148);g.fillStyle='#38e1ff';g.font='12px monospace';g.fillText(txt,16,30);for(let i=0;i<5;i++){g.fillRect(16,50+i*18,(Math.random()*180+20),4);}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;}
+const holos=[];['APERTURA · e4','ELO 2847','TÁCTICA +0.8','RELOJ 02:14'].forEach((t,i)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(0.9,0.56),new THREE.MeshBasicMaterial({map:holoTex(t),transparent:true,opacity:.85,side:THREE.DoubleSide}));const a=-0.7+i*0.45;m.position.set(Math.sin(a)*2.2,2.2+ (i%2)*0.3,Math.cos(a)*2.2-0.6);m.lookAt(0,1.6,2);scene.add(m);holos.push(m);});
+
+// ---------- ESTRATEGA BUST ----------
+const R=new THREE.Group();scene.add(R);R.position.y=0;
+function armorTex(){const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d');g.fillStyle='#6a0f0e';g.fillRect(0,0,512,512);
+for(let i=0;i<2600;i++){g.fillStyle='rgba(0,0,0,'+(Math.random()*0.16)+')';g.fillRect(Math.random()*512,Math.random()*512,2,2);}
+g.strokeStyle='rgba(0,0,0,.55)';g.lineWidth=3;for(let i=0;i<7;i++){g.beginPath();g.moveTo(0,60+i*68);g.lineTo(512,44+i*68);g.stroke();}
+g.strokeStyle='rgba(255,190,120,.28)';g.lineWidth=1.5;for(let i=0;i<7;i++){g.beginPath();g.moveTo(0,63+i*68);g.lineTo(512,47+i*68);g.stroke();}
+g.strokeStyle='rgba(20,24,30,.9)';g.lineWidth=2;g.strokeRect(30,30,452,452);
+g.fillStyle='rgba(255,220,170,.5)';for(let i=0;i<40;i++){g.fillRect(Math.random()*512,Math.random()*512,3,1);}
+const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;}
+const armT=armorTex();
+const matRed=new THREE.MeshStandardMaterial({map:armT,bumpMap:armT,bumpScale:.6,color:0xffffff,metalness:.9,roughness:.34,envMapIntensity:1.2});
+const matBlack=new THREE.MeshStandardMaterial({color:0x11161c,metalness:.85,roughness:.4,envMapIntensity:1.0});
+const matGold=new THREE.MeshStandardMaterial({color:0xa8834a,metalness:1,roughness:.28,envMapIntensity:1.3});
+const matSkin=new THREE.MeshStandardMaterial({color:0xc7a184,roughness:.55,metalness:.05,envMapIntensity:.5});
+// torso
+const chest=new THREE.Mesh(new THREE.SphereGeometry(0.62,48,32),matRed);chest.scale.set(1.15,0.95,0.75);chest.position.y=0.72;chest.castShadow=true;R.add(chest);
+const chestIn=new THREE.Mesh(new THREE.SphereGeometry(0.5,32,24),matBlack);chestIn.scale.set(1.0,0.85,0.7);chestIn.position.set(0,0.70,0.12);R.add(chestIn);
+for(const s of[-1,1]){const pad=new THREE.Mesh(new THREE.SphereGeometry(0.24,24,18),matRed);pad.position.set(s*0.68,1.02,0);pad.scale.set(1,0.85,1);R.add(pad);const trim=new THREE.Mesh(new THREE.TorusGeometry(0.2,0.02,10,32),matGold);trim.position.copy(pad.position);trim.rotation.x=Math.PI/2.3;R.add(trim);}
+// reactor
+const reactor=new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.11,0.03,32),new THREE.MeshBasicMaterial({color:0xbdf3ff}));reactor.rotation.x=Math.PI/2;reactor.position.set(0,0.82,0.52);R.add(reactor);
+const reactorRing=new THREE.Mesh(new THREE.TorusGeometry(0.11,0.018,12,40),new THREE.MeshBasicMaterial({color:0x38e1ff}));reactorRing.position.copy(reactor.position);R.add(reactorRing);
+const reactorLight=new THREE.PointLight(0x38e1ff,3,4);reactorLight.position.set(0,0.9,0.9);R.add(reactorLight);
+// circuit lines
+function circuitTex(){const c=document.createElement('canvas');c.width=128;c.height=128;const g=c.getContext('2d');g.fillStyle='#0a0e13';g.fillRect(0,0,128,128);g.strokeStyle='#38e1ff';g.lineWidth=3;g.beginPath();g.moveTo(10,90);g.lineTo(50,90);g.lineTo(70,60);g.lineTo(118,60);g.moveTo(10,110);g.lineTo(90,110);g.lineTo(110,80);g.stroke();const t=new THREE.CanvasTexture(c);return t;}
+const neck=new THREE.Mesh(new THREE.CylinderGeometry(0.17,0.20,0.28,24),new THREE.MeshStandardMaterial({map:circuitTex(),emissive:0x0e4a5a,emissiveIntensity:.6,roughness:.5}));neck.position.y=1.28;R.add(neck);
+// head group
+const head=new THREE.Group();head.position.y=1.62;R.add(head);
+const skull=new THREE.Mesh(new THREE.SphereGeometry(0.26,48,32),matSkin);skull.scale.set(0.92,1.08,0.95);head.add(skull);
+// nose
+const nose=new THREE.Mesh(new THREE.ConeGeometry(0.045,0.12,12),matSkin);nose.position.set(0,-0.02,0.26);nose.rotation.x=Math.PI/2.2;head.add(nose);
+// ears
+for(const s of[-1,1]){const e=new THREE.Mesh(new THREE.SphereGeometry(0.05,12,10),matSkin);e.position.set(s*0.245,0,0.02);head.add(e);}
+// hair
+const hair=new THREE.Mesh(new THREE.SphereGeometry(0.27,32,20,0,Math.PI*2,0,Math.PI*0.55),new THREE.MeshStandardMaterial({color:0x0a0d12,roughness:.4,metalness:.3}));hair.position.y=0.03;hair.scale.set(0.95,1,0.98);head.add(hair);
+// eyes
+const eyeWhiteM=new THREE.MeshStandardMaterial({color:0xe8e2d6,roughness:.3});
+function irisTex(){const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');g.fillStyle='#1a0f0a';g.fillRect(0,0,64,64);g.fillStyle='#3a2415';g.beginPath();g.arc(32,32,20,0,7);g.fill();g.fillStyle='#0a0a0a';g.beginPath();g.arc(32,32,9,0,7);g.fill();g.fillStyle='rgba(255,255,255,.8)';g.fillRect(24,18,6,6);return new THREE.CanvasTexture(c);}
+const irT=irisTex();const eyes=[];
+for(const s of[-1,1]){const g=new THREE.Group();g.position.set(s*0.098,0.02,0.215);const w=new THREE.Mesh(new THREE.SphereGeometry(0.052,20,14),eyeWhiteM);w.scale.set(1,0.72,0.6);g.add(w);const ir=new THREE.Mesh(new THREE.PlaneGeometry(0.045,0.045),new THREE.MeshBasicMaterial({map:irT,transparent:true}));ir.position.z=0.032;g.add(ir);const lid=new THREE.Mesh(new THREE.SphereGeometry(0.056,16,12),new THREE.MeshStandardMaterial({color:0xc7a184,roughness:.7}));lid.position.z=0.008;lid.scale.set(1.05,0.55,0.9);g.add(lid);g.userData.lid=lid;head.add(g);eyes.push(g);}
+// glasses HUD
+const glassM=new THREE.MeshStandardMaterial({color:0x0a0a0a,roughness:.3,metalness:.6});
+for(const s of[-1,1]){const f=new THREE.Mesh(new THREE.BoxGeometry(0.13,0.09,0.02),glassM);f.position.set(s*0.10,0.045,0.245);head.add(f);}
+function lensTex(){const c=document.createElement('canvas');c.width=128;c.height=64;const g=c.getContext('2d');g.fillStyle='rgba(56,225,255,.22)';g.fillRect(0,0,128,64);g.fillStyle='#9be9ff';g.font='10px monospace';g.fillText('◉ 12ms  ELO+',8,16);g.fillRect(8,30,90,2);g.fillRect(8,38,60,2);return new THREE.CanvasTexture(c);}
+const lensT=lensTex();
+for(const s of[-1,1]){const l=new THREE.Mesh(new THREE.PlaneGeometry(0.115,0.075),new THREE.MeshBasicMaterial({map:lensT,transparent:true,opacity:.9}));l.position.set(s*0.10,0.045,0.257);head.add(l);}
+// brows + glowing circuit tattoos (like the reference)
+const browM=new THREE.MeshStandardMaterial({color:0x14100c,roughness:.85});
+for(const s of[-1,1]){const b=new THREE.Mesh(new THREE.BoxGeometry(0.085,0.016,0.025),browM);b.position.set(s*0.098,0.095,0.225);b.rotation.z=-s*0.12;head.add(b);}
+const tatM=new THREE.MeshBasicMaterial({color:0x54e8ff});
+for(const s of[-1,1]){const t1=new THREE.Mesh(new THREE.PlaneGeometry(0.006,0.10),tatM);t1.position.set(s*0.20,-0.03,0.155);t1.rotation.y=s*0.9;head.add(t1);
+const t2=new THREE.Mesh(new THREE.PlaneGeometry(0.05,0.006),tatM);t2.position.set(s*0.185,-0.075,0.17);t2.rotation.y=s*0.8;head.add(t2);}
+// mouth: jaw system
+const mouth=new THREE.Group();mouth.position.set(0,-0.155,0.215);head.add(mouth);
+const inner=new THREE.Mesh(new THREE.PlaneGeometry(0.13,0.07),new THREE.MeshBasicMaterial({color:0x0a0202}));inner.position.z=0.005;mouth.add(inner);
+const teeth=new THREE.Mesh(new THREE.PlaneGeometry(0.11,0.022),new THREE.MeshBasicMaterial({color:0xf5efe4}));teeth.position.set(0,0.02,0.008);mouth.add(teeth);
+const tongue=new THREE.Mesh(new THREE.PlaneGeometry(0.07,0.025),new THREE.MeshBasicMaterial({color:0x8a3a3a}));tongue.position.set(0,-0.018,0.008);mouth.add(tongue);
+const lipM=new THREE.MeshStandardMaterial({color:0x7a4a3e,roughness:.6});
+const lipUp=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.018,0.02),lipM);lipUp.position.set(0,0.038,0.012);mouth.add(lipUp);
+const jaw=new THREE.Group();mouth.add(jaw);
+const lipLo=new THREE.Mesh(new THREE.BoxGeometry(0.13,0.02,0.02),lipM);lipLo.position.set(0,-0.038,0.012);jaw.add(lipLo);
+// table + queen in front
+const table=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.08,0.7),new THREE.MeshStandardMaterial({color:0x2a1a10,roughness:.6}));table.position.set(0,0.18,0.85);R.add(table);
+const queen=new THREE.Group();{const b=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.07,0.22,16),new THREE.MeshStandardMaterial({color:0x5a3a22,roughness:.5}));b.position.y=0.11;queen.add(b);const t=new THREE.Mesh(new THREE.SphereGeometry(0.035,12,10),new THREE.MeshStandardMaterial({color:0x8a6238,metalness:.6,roughness:.3}));t.position.y=0.26;queen.add(t);}queen.position.set(0,0.22,0.85);R.add(queen);
+
+// ---------- AVATAR .GLB REALISTA (si existe, reemplaza al procedural) ----------
+// Genera el modelo con Meshy.ai / Tripo AI (image-to-3D) desde tu foto y guárdalo como assets/estratega.glb
+let avatarGLB=null;const morphMeshes=[];let mixer=null;const mixClips=[];
+(async function tryLoadAvatar(){const urls=['assets/estratega-rig.glb?v=20261009h','assets/estratega.glb','assets/stratega.glb'];for(const u of urls){try{
+const gltf=await new GLTFLoader().loadAsync(u);avatarGLB=gltf.scene;
+avatarGLB.traverse(o=>{if(o.isMesh){o.castShadow=true;if(o.morphTargetDictionary)morphMeshes.push(o);}});
+const box=new THREE.Box3().setFromObject(avatarGLB);const size=box.getSize(new THREE.Vector3());const c=box.getCenter(new THREE.Vector3());
+const s=2.1/Math.max(size.y,0.001);avatarGLB.scale.setScalar(s);
+avatarGLB.position.set(-c.x*s,(0-box.min.y)*s+0,-c.z*s+0.1);
+const b2=new THREE.Box3().setFromObject(avatarGLB);const s2=b2.getSize(new THREE.Vector3());const c2=b2.getCenter(new THREE.Vector3());
+homeTg.copy(c2);const dist=Math.max(s2.x,s2.y)*1.5+s2.z;
+homePos.set(c2.x+dist*0.08,c2.y+dist*0.12,c2.z+dist);
+controls.minDistance=dist*0.45;controls.maxDistance=dist*2.2;
+camera.position.copy(homePos);controls.target.copy(homeTg);
+faceTg.set(c2.x,b2.max.y-s2.y*0.07,c2.z+s2.z*0.5);
+facePos.set(c2.x+dist*0.03,faceTg.y+dist*0.02,c2.z+dist*0.55);
+R.visible=false;scene.add(avatarGLB);
+let nMorph=0;for(const m of morphMeshes)nMorph+=Object.keys(m.morphTargetDictionary).length;
+$('#syncstat').textContent='morphs '+nMorph+' ✓';
+if(gltf.animations&&gltf.animations.length){mixer=new THREE.AnimationMixer(avatarGLB);for(const c of gltf.animations){const a=mixer.clipAction(c);a.play();mixClips.push(c.name||'clip');}}
+showToast('Avatar realista cargado'+(mixClips.length?' · anim: '+mixClips.join(','):''));setStatus('avatar .glb','#38e1ff');return;}catch(e){console.error('No cargó '+u,e);showToast('Falló '+u.split('/').pop());}}
+if(!avatarGLB){setStatus('sin modelo 3D','#ff6a5a');showToast('Sin .glb: revisa assets/ con F12');}})();
+function driveGLBMorphs(){if(!avatarGLB||!morphMeshes.length)return;const open=Math.min(2.4,Face.open*2.2);
+for(const m of morphMeshes){const d=m.morphTargetDictionary,inf=m.morphTargetInfluences;const set=(n,v)=>{if(d[n]!==undefined)inf[d[n]]=v;};
+set('jawOpen',open);set('mouthOpen',open);set('MouthOpen',open);set('jaw_open',open);
+set('mouthClose',visTarget.m>0.5?1:0);set('mouthFunnel',visTarget.o);set('mouthPucker',visTarget.o*0.8);set('mouthSmile',visTarget.e*0.35);}}
+
+// ---------- MODO RETRATO: tu foto exacta a pantalla completa ----------
+let portraitOn=false,portraitReady=false;
+(function initPortrait(){const img=$('#portrait'),bg=$('#portraitBlur');const probe=new Image();
+probe.onload=()=>{img.src='assets/referencia.jpg';bg.src='assets/referencia.jpg';portraitReady=true;$('#btnPortrait').style.display='';};
+probe.onerror=()=>{};probe.src='assets/referencia.jpg';})();
+$('#btnPortrait').onclick=()=>{if(!portraitReady)return;portraitOn=!portraitOn;const _cv2=$('#stage');if(_cv2)_cv2.style.display=portraitOn?'none':'';
+$('#portraitWrap').style.display=portraitOn?'block':'none';$('#portraitGlow').style.display=portraitOn?'block':'none';
+$('#btnPortrait').textContent=portraitOn?'Volver al 3D':'Retrato real';
+showToast(portraitOn?'Modo retrato: tu imagen real':'Modo 3D');};
+
+// state for face
+const Face={open:0,wide:0,round:0,blink:0};
+let visTarget={a:0,e:0,o:0,m:0};
+
+// pointer look
+const pointer={x:0,y:0};addEventListener('pointermove',e=>{pointer.x=(e.clientX/innerWidth-0.5)*2;pointer.y=(e.clientY/innerHeight-0.5)*2;});
+
+// gesture
+let gesture={t:0,type:'reposo',next:2};
+function newGesture(energy){const opts=['reposo','palma','senalar','pecho','alzada','amplio'];gesture.type=energy>0.25?opts[Math.floor(Math.random()*opts.length)]:'reposo';gesture.t=0;gesture.next=1.6+Math.random()*2.2;}
+
+// ---------- LIP SYNC ENGINE ----------
+let timeline=[];let anchorMs=0;let speaking=false;let audioEnergy=0;let mouthActive=false;let mood='sereno';let offsetMs=+(localStorage.getItem('estratega_offset')||0);
+$('#offset').value=offsetMs;$('#offLabel').textContent=offsetMs;$('#offLabel2').textContent=offsetMs;
+$('#offset').oninput=e=>{offsetMs=+e.target.value;localStorage.setItem('estratega_offset',offsetMs);$('#offLabel').textContent=offsetMs;$('#offLabel2').textContent=offsetMs;};
+function visemeOf(ch){ch=ch.toLowerCase();if('aáàä'.includes(ch))return'a';if('eéèêiíìîy'.includes(ch))return'e';if('oóòôuúùüw'.includes(ch))return'o';if('mbp'.includes(ch))return'm';if(ch===' ')return'sil';return'half';}
+function buildTimelineFromText(text,wpm=880){timeline=[];let t=0;for(const ch of text){const d=/[,.!?;:]/.test(ch)?180:ch===' '?90:75;timeline.push({ch,t,d});t+=d;}anchorMs=performance.now();speaking=true;}
+function buildTimelineFromAlignment(chars,starts,durs){timeline=chars.map((ch,i)=>({ch,t:starts[i],d:durs[i]||80}));anchorMs=performance.now();speaking=true;}
+function driveMouth(now){if(!speaking||!timeline.length){visTarget={a:0,e:0,o:0,m:0};mouthActive=false;Face.open*=0.7;Face.wide*=0.7;Face.round*=0.7;return;}
+const t=now-anchorMs-offsetMs;let cur=null,next=null;
+for(let i=0;i<timeline.length;i++){const s=timeline[i];if(t>=s.t&&t<s.t+s.d){cur=s;next=timeline[i+1]||null;break;}}
+if(!cur){if(t>(timeline[timeline.length-1].t+250)){speaking=false;}visTarget={a:0,e:0,o:0,m:0};mouthActive=false;Face.open*=0.7;return;}
+mouthActive=true;
+const v=visemeOf(cur.ch);const amp=Math.min(1,0.35+audioEnergy*1.4);
+const vt={a:0,e:0,o:0,m:0};
+if(v==='a')vt.a=amp;else if(v==='e')vt.e=amp;else if(v==='o')vt.o=amp;else if(v==='m')vt.m=1;else if(v==='half'){vt.a=amp*0.35;vt.e=amp*0.25;}
+// coarticulación: anticipa siguiente
+if(next){const nv=visemeOf(next.ch);const tail=(cur.t+cur.d-t)/cur.d;if(tail<0.4){if(nv==='o')vt.o=Math.max(vt.o,0.5);if(nv==='e')vt.e=Math.max(vt.e,0.5);if(nv==='m')vt.m=1;}}
+// bilabiales mandan
+if(v==='m'){vt.a=0;vt.e=0;vt.o=0;}
+visTarget=vt;liveText.textContent='“'+timeline.slice(0,120).map(s=>s.ch).join('').slice(0,120)+'…”';
+vA.style.transform='scaleY('+(0.2+vt.a*3)+')';vE.style.transform='scaleY('+(0.2+vt.e*3)+')';vO.style.transform='scaleY('+(0.2+vt.o*3)+')';vM.style.transform='scaleY('+(0.2+vt.m*3)+')';
+}
+
+// audio energy: mic for listening + simulated for speaking
+let actx=null,analyser=null,micData=null,listening=false;
+async function enableMic(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const s=await navigator.mediaDevices.getUserMedia({audio:true});const src=actx.createMediaStreamSource(s);analyser=actx.createAnalyser();analyser.fftSize=512;src.connect(analyser);micData=new Uint8Array(analyser.frequencyBinCount);}catch(e){}}
+function sampleEnergy(){if(analyser&&micData&&(listening||!speaking)){analyser.getByteFrequencyData(micData);let sum=0;for(let i=2;i<40;i++)sum+=micData[i];return Math.min(1,sum/40/90);}if(speaking&&mouthActive){return 0.35+Math.max(visTarget.a,visTarget.e,visTarget.o)*0.65;}return 0.03;}
+
+// ---------- ELEVENLABS ----------
+function getAgentId(){const u=new URLSearchParams(location.search).get('agente');if(u)return u;return localStorage.getItem('estratega_agent_id')||'agent_7701m4ep07nqe1bsmqm7chv1kweq';}
+let conv=null,connected=false,sessionStart=0,timerInt=null;
+async function toggleTalk(){if(connected){await stopTalk();return;}await startTalk();}
+async function startTalk(){
+const agentId=getAgentId();
+if(!agentId){openDrawer();showToast('Pega primero tu Agent ID');say('estratega','Para hablar sin límites, configure su Agent ID de ElevenLabs. Mientras tanto, puedo hacer la demo local.');return;}
+setStatus('conectando…','#ffd28a');await enableMic();
+let mod=null;const urls=['https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.26.0/+esm','https://esm.sh/@elevenlabs/client@1.26.0'];
+for(const u of urls){try{mod=await import(u);break;}catch(e){}}
+if(!mod||!mod.Conversation){setStatus('sin SDK','#ff6a5a');say('estratega','No pude cargar el SDK de voz (red bloqueada). Uso la demo local.');demoSpeak('Tome asiento. Soy el Estratega. Mientras se restablece la red, juguemos a ciegas: ¿qué pieza movería usted ahora?');return;}
+try{
+conv=await mod.Conversation.startSession({agentId,connectionType:'websocket',
+onConnect:()=>{connected=true;setStatus('en vivo','#38e1ff');listening=true;sessionStart=Date.now();say('estratega','En línea. Lo escucho. Pregunte su jugada.');clearInterval(timerInt);timerInt=setInterval(()=>{const s=Math.floor((Date.now()-sessionStart)/1000);$('#kMin').textContent=String(Math.floor(s/60)).padStart(2,'0');},1000);syncUI(true);},
+onDisconnect:()=>{connected=false;listening=false;setStatus('en espera');syncUI(false);},
+onError:(e)=>{showToast('Error de voz: '+(e?.message||'desconocido'));},
+onModeChange:(m)=>{listening=m.mode==='listening';setStatus(m.mode==='speaking'?'hablando':m.mode==='listening'?'escuchando':'en vivo',m.mode==='speaking'?'#ff8a6a':'#38e1ff');},
+onMessage:(msg)=>{try{
+if(typeof msg==='string')return;
+const txt=msg.message||msg.text||msg.content||'';
+if((msg.source==='ai'||msg.source==='assistant'||msg.type==='agent_response')&&txt){say('estratega',txt);buildTimelineFromText(txt);}
+// alineación letra por letra si viene
+const chars=msg.chars||msg.alignment?.chars||msg.alignment?.characters;
+const st=msg.char_start_times_ms||msg.alignment?.char_start_times_ms;
+const du=msg.char_durations_ms||msg.alignment?.char_durations_ms;
+if(chars&&st){buildTimelineFromAlignment(chars,st,du||[]);$('#syncstat').textContent='sync char+audio ✓';}
+}catch(e){}}
+});
+}catch(e){setStatus('error','#ff6a5a');showToast('No se pudo conectar. Revisa Agent ID y dominio permitido.');demoSpeak('No pude abrir el canal seguro. Dígame su pregunta por escrito y la respondo aquí mismo.');}
+}
+async function stopTalk(){try{conv&&await conv.endSession();}catch(e){}connected=false;listening=false;speaking=false;setStatus('en espera');syncUI(false);clearInterval(timerInt);}
+function syncUI(on){const b=$('#btnTalk'),b2=$('#btnTalk2');for(const x of[b,b2]){x.innerHTML=on?'CORTAR <span class="icon-circle">■</span>':'HABLAR <span class="icon-circle">↗</span>';}}
+
+// demo offline
+let demoAudioEl=null,demoAnalyserHooked=false;
+function hookDemoAudio(el){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(demoAnalyserHooked)return;const src=actx.createMediaElementSource(el);analyser=analyser||actx.createAnalyser();analyser.fftSize=512;src.connect(analyser);analyser.connect(actx.destination);micData=new Uint8Array(analyser.frequencyBinCount);demoAnalyserHooked=true;}catch(e){}}
+async function demoSpeak(text){text=text||'Tome asiento. Soy el Estratega. En el tablero como en la vida: quien controla el centro, controla el ritmo. ¿Qué decisión tiene usted sobre la mesa hoy?';say('estratega','[demo] '+text);setStatus('demo local','#ffd28a');buildTimelineFromText(text);
+const isDefault=!arguments.length||text.startsWith('Tome asiento');
+try{if(isDefault){for(const vv of['assets/habla-retrato.mp4','assets/habla-bienvenida.mp4']){const v=await fetch(vv,{method:'HEAD'});if(!v.ok)continue;const pv=$('#portraitVideo'),pi=$('#portrait');if(!portraitOn)$('#btnPortrait').click();pi.style.display='none';pv.style.display='block';pv.src=vv;pv.currentTime=0;pv.onended=()=>{speaking=false;pv.style.display='none';pi.style.display='block';if(!connected)setStatus('en espera');};await pv.play();return;}}}catch(e){}
+try{if(!demoAudioEl){demoAudioEl=new Audio();demoAudioEl.preload='auto';}const mp3=isDefault?'assets/demo-bienvenida.mp3':null;
+if(mp3){const head=await fetch(mp3,{method:'HEAD'});if(head.ok){demoAudioEl.src=mp3;hookDemoAudio(demoAudioEl);await demoAudioEl.play();return;}}}catch(e){}
+try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='es-ES';u.rate=0.98;u.onend=()=>{speaking=false;};speechSynthesis.speak(u);}catch(e){}setTimeout(()=>{if(!connected)setStatus('en espera');},6000);}
+
+// chat form
+$('#chatform').addEventListener('submit',async e=>{e.preventDefault();const inp=$('#chatinput');const t=inp.value.trim();if(!t)return;inp.value='';say('usted',t);
+if(connected&&conv){try{if(conv.sendUserMessage)await conv.sendUserMessage(t+' [Contexto: el usuario habla en tono '+mood+']');else if(conv.sendFeedback)conv.sendFeedback(t);return;}catch(err){}}
+demoSpeak('Buena jugada verbal: “'+t.slice(0,90)+'”. Mi respuesta táctica: controle el centro, desarrolle con amenaza y no mueva la misma pieza dos veces en la apertura. ¿Qué pieza sacrificaría usted para ganar tiempo?');});
+document.querySelectorAll('.qbtn').forEach(b=>b.onclick=()=>{$('#chatinput').value=b.dataset.q;$('#chatform').dispatchEvent(new Event('submit'));});
+$('#btnTalk').onclick=toggleTalk;$('#btnTalk2').onclick=toggleTalk;
+$('#btnDemo').onclick=()=>demoSpeak();$('#btnDemoTop').onclick=()=>demoSpeak();
+function flyTo(p1,t1,ms){const p0=camera.position.clone(),t0=controls.target.clone();ms=ms||900;const s=performance.now();(function step(n){const k=Math.min(1,(n-s)/ms);const e=1-Math.pow(1-k,3);camera.position.lerpVectors(p0,p1,e);controls.target.lerpVectors(t0,t1,e);if(k<1)requestAnimationFrame(step);})(s);}
+function frontView(){flyTo(homePos.clone(),homeTg.clone());}
+function faceView(){flyTo(facePos.clone(),faceTg.clone(),700);}
+$('#btnFront').onclick=frontView;$('#btnFront2').onclick=frontView;$('#btnFace').onclick=faceView;
+let jawTest=null;
+$('#btnJaw').onclick=()=>{jawTest=performance.now();faceView();showToast('Moviendo mandíbula 2s…');};
+// drawer
+function openDrawer(){$('#drawer').classList.remove('hidden');$('#agentId').value=getAgentId();$('#btnTest').href=getAgentId()?('https://elevenlabs.io/app/talk-to?agent_id='+getAgentId()):'https://elevenlabs.io/app/talk-to';}
+function closeDrawer(){$('#drawer').classList.add('hidden');}
+$('#btnConfig').onclick=openDrawer;$('#btnClose').onclick=closeDrawer;$('#scrim').onclick=closeDrawer;
+$('#btnSave').onclick=()=>{const v=$('#agentId').value.trim();if(v){localStorage.setItem('estratega_agent_id',v);showToast('Agent ID guardado');}closeDrawer();};
+
+// ---------- LOOP ----------
+const clock=new THREE.Clock();let blinkT=2,frame=0,fpsT=performance.now();
+function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),0.05),t=clock.elapsedTime;
+audioEnergy+=(sampleEnergy()-audioEnergy)*0.25;
+driveMouth(performance.now());
+// smooth face
+if(jawTest){const k=(performance.now()-jawTest)/2000;if(k>=1){jawTest=null;}else{const s=Math.sin(k*Math.PI);visTarget={a:s,e:0,o:s*0.4,m:0};speaking=true;if(k>0.97)speaking=false;}}
+Face.open+=(((visTarget.a*0.9+visTarget.e*0.4+visTarget.o*0.7)-Face.open)*0.45);
+Face.wide+=((visTarget.e-Face.wide)*0.4);Face.round+=((visTarget.o-Face.round)*0.4);
+const closed=visTarget.m>0.5?1:0;
+jaw.position.y=THREE.MathUtils.lerp(jaw.position.y,-Face.open*0.055-(closed?0.012:0),0.5);
+jaw.scale.x=1+Face.wide*0.25-Face.round*0.15;inner.scale.y=0.3+Face.open*2.2;inner.scale.x=1+Face.wide*0.4-Face.round*0.3;
+teeth.visible=Face.open>0.08&&!closed;tongue.visible=Face.open>0.15;
+// blink
+blinkT-=dt;if(blinkT<0){Face.blink=1;blinkT=2.5+Math.random()*3;}
+if(Face.blink>0){Face.blink=Math.max(0,Face.blink-dt*8);}
+for(const e of eyes){e.userData.lid.scale.y=0.55-Face.blink*0.5;e.position.x+=(pointer.x*0.02-e.position.x)*0.05;}
+head.rotation.y+=((pointer.x*0.35+(controls.getAzimuthalAngle()*0.25))-head.rotation.y)*0.06;
+head.rotation.x+=((pointer.y*0.18+Math.sin(t*1.2)*0.03+(listening?0.08:0))-head.rotation.x)*0.06;
+head.rotation.z=Math.sin(t*0.8)*0.02;
+// breath + gesture
+gesture.t+=dt;if(gesture.t>gesture.next)newGesture(audioEnergy);
+R.position.y=Math.sin(t*1.4)*0.015;R.rotation.y=Math.sin(t*0.4)*0.02+(gesture.type==='senalar'?0.08:0);
+head.position.y=1.62+Math.sin(t*1.4)*0.008-(speaking?0.008:0);
+driveGLBMorphs();
+if(mixer)mixer.update(dt);
+if(avatarGLB){avatarGLB.position.y+=Math.sin(t*1.4)*0.0006;avatarGLB.rotation.y+=(pointer.x*0.12-avatarGLB.rotation.y)*0.05;avatarGLB.rotation.x+=((-Face.open*0.015)-avatarGLB.rotation.x)*0.2;}
+if(portraitOn&&portraitReady){const _cv=$('#stage');if(_cv&&_cv.style.display!=='none')_cv.style.display='none';const img=$('#portrait');img.style.translate=(pointer.x*-12)+'px '+(pointer.y*-8)+'px';$('#portraitGlow').style.opacity=0.25+audioEnergy*0.7;const _pw=$('#portraitWrap');if(_pw)_pw.style.filter='brightness('+(1+audioEnergy*0.18).toFixed(3)+') saturate('+(1+audioEnergy*0.25).toFixed(3)+')';}
+// reactor pulse
+const pulse=2.2+audioEnergy*5+Math.sin(t*3)*0.4;reactorLight.intensity=pulse;reactorRing.scale.setScalar(1+audioEnergy*0.15);$('#stReactor').textContent=Math.round(92+audioEnergy*8)+'%';$('#kEnergia').textContent=Math.round(audioEnergy*100)+'%';
+// wave
+for(let i=0;i<bars.length;i++){const v=connected||speaking?audioEnergy:(0.06+Math.sin(t*2+i)*0.04);bars[i].style.transform='scaleY('+(0.25+v*3.2)+')';}
+glowDisc.material.opacity=0.35+audioEnergy*0.4;holos.forEach((h,i)=>{h.position.y=2.2+(i%2)*0.3+Math.sin(t*1.1+i)*0.05;});
+controls.update();if(!(typeof portraitOn!=='undefined'&&portraitOn&&portraitReady))composer.render(scene,camera);
+frame++;const now=performance.now();if(now-fpsT>500){const f=Math.round(frame*1000/(now-fpsT));$('#fps').textContent=f+' fps';frame=0;fpsT=now;
+if(listening&&analyser&&micData){analyser.getByteFrequencyData(micData);let s=0;for(let i=2;i<40;i++)s+=micData[i];const lv=Math.min(1,s/40/90);
+mood=lv<0.06?'tranquilo':lv<0.2?'sereno':lv<0.45?'decidido':'enérgico';const me=$('#mood');if(me)me.textContent=mood;}
+if(f<24&&!animate._lite){animate._lite=true;try{bloom.enabled=false;renderer.setPixelRatio(1);composer.setPixelRatio(1);}catch(e){}showToast('Modo ligero: bloom off');}}
+}
+animate();
+// reveal
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');}));document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+// boot
+{const msgs=['Calibrando reactor…','Cargando tableros…','Sincronizando fonemas ES…','Enfocando mirada…'];let i=0;const iv=setInterval(()=>{$('#bootbar').style.width=((i+1)/msgs.length*100)+'%';$('#bootmsg').textContent=msgs[i];if(++i>=msgs.length){clearInterval(iv);setTimeout(()=>{$('#boot').style.display='none';say('estratega','Soy el Estratega. Tome asiento frente al tablero. ¿Empezamos por una apertura, una decisión difícil, o mi peor derrota?');},450);}},380);}
+addEventListener('keydown',e=>{if(e.key==='ArrowLeft')controls.autoRotateSpeed=-1.2;if(e.key==='ArrowRight')controls.autoRotateSpeed=1.2;});
+</script>
+</body>
+</html>
