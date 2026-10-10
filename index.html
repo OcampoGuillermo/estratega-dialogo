@@ -48,6 +48,11 @@ body::after{content:'';position:fixed;inset:0;z-index:60;pointer-events:none;opa
 input,textarea{outline:none}
 input:focus{border-color:rgba(56,225,255,.6)!important;box-shadow:0 0 0 4px rgba(56,225,255,.12)}
 @media(max-width:900px){.split{grid-template-columns:1fr!important}.hud-right{order:2}.hud-left{order:1;min-height:62dvh}}
+#mapWrap{display:none;position:absolute;top:0;right:0;bottom:0;width:62%;z-index:15;background:#04070c;border-left:1px solid rgba(56,225,255,.18)}
+body.modo-mapa #mapWrap{display:block}
+#mapFrame{position:absolute;inset:0;width:100%;height:100%;border:0}
+#mapBar{position:absolute;top:10px;left:10px;right:10px;display:flex;gap:8px;align-items:center;z-index:2}
+@media(max-width:900px){body.modo-mapa #mapWrap{top:auto;left:0;right:0;bottom:0;width:100%;height:52%}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -96,7 +101,7 @@ input:focus{border-color:rgba(56,225,255,.6)!important;box-shadow:0 0 0 4px rgba
 <div id="portraitGlow"></div>
 <div class="cine-vignette"></div>
 <div class="scanline"></div>
-</div><div id="toast" class="absolute left-1/2 -translate-x-1/2 bottom-24 bg-black/80 border border-[#38e1ff]/30 text-sm px-4 py-2 rounded-full hidden whitespace-nowrap"></div>
+</div><div id="mapWrap"><iframe id="mapFrame" title="Vista aérea" loading="lazy" allowfullscreen></iframe><div id="mapBar"><span id="mapCaption" class="eyebrow">Formosa</span><button id="btnMapClose" class="btn-ghost pill px-3 py-1.5 text-sm">Cerrar mapa</button></div></div><div id="toast" class="absolute left-1/2 -translate-x-1/2 bottom-24 bg-black/80 border border-[#38e1ff]/30 text-sm px-4 py-2 rounded-full hidden whitespace-nowrap"></div>
 </div>
 <div class="px-5 py-4 border-t border-white/10 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[11px] text-white/60">
 <span>BOCA <span class="text-white">A·E·O·M</span> por letra + energía real</span>
@@ -104,7 +109,7 @@ input:focus{border-color:rgba(56,225,255,.6)!important;box-shadow:0 0 0 4px rgba
 <span>COARTICULACIÓN <span class="text-white">activa</span></span>
 <span>TRANSPARENCIA <span class="text-[#9be9ff]">recreación con IA</span></span>
 </div>
-</div></section><div style="display:flex;justify-content:center;padding:10px 12px;position:relative;z-index:20;width:100%"><div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;max-width:900px;width:100%"><button id="btnTalk2" class="btn-primary pill px-3 py-1.5 text-sm font-bold group flex items-center gap-2">Hablar <span class="icon-circle">◉</span></button><button id="btnDemo" class="btn-ghost pill px-3 py-1.5 text-sm">Demo</button><button id="btnFront" class="btn-ghost pill px-3 py-1.5 text-sm">Frente</button><button id="btnJaw" class="btn-ghost pill px-3 py-1.5 text-sm">Boca</button><button id="btnFace" class="btn-ghost pill px-3 py-1.5 text-sm">Cara</button><button id="btnPortrait" class="btn-ghost pill px-3 py-1.5 text-sm" style="display:none">Retrato</button><span class="font-mono text-[10px] text-white/50 px-2">tono: <span id="mood" class="text-[#9be9ff]">—</span></span><div id="wave" style="display:none"></div><div style="display:none"><span id="stReactor">98%</span><span id="stMode">listo</span></div></div>
+</div></section><div style="display:flex;justify-content:center;padding:10px 12px;position:relative;z-index:20;width:100%"><div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;max-width:900px;width:100%"><button id="btnTalk2" class="btn-primary pill px-3 py-1.5 text-sm font-bold group flex items-center gap-2">Hablar <span class="icon-circle">◉</span></button><button id="btnDemo" class="btn-ghost pill px-3 py-1.5 text-sm">Demo</button><button id="btnFront" class="btn-ghost pill px-3 py-1.5 text-sm">Frente</button><button id="btnJaw" class="btn-ghost pill px-3 py-1.5 text-sm">Boca</button><button id="btnFace" class="btn-ghost pill px-3 py-1.5 text-sm">Cara</button><button id="btnPortrait" class="btn-ghost pill px-3 py-1.5 text-sm" style="display:none">Retrato</button><button id="btnMap" class="btn-ghost pill px-3 py-1.5 text-sm">Mapa</button><span class="font-mono text-[10px] text-white/50 px-2">tono: <span id="mood" class="text-[#9be9ff]">—</span></span><div id="wave" style="display:none"></div><div style="display:none"><span id="stReactor">98%</span><span id="stMode">listo</span></div></div>
 
 <!-- RIGHT HUD -->
 <aside class="flex flex-col gap-4 hud-right" id="chatPanel">
@@ -181,7 +186,7 @@ const $=s=>document.querySelector(s);
 const CLINICA=new URLSearchParams(location.search).get('clinica')==='1';
 const chat=$('#chat'), liveText=$('#liveText'), statusEl=$('#status'), dot=$('#dot'), toast=$('#toast');
 const vA=$('#vA'),vE=$('#vE'),vO=$('#vO'),vM=$('#vM');
-function say(who,text){const d=document.createElement('div');const me=who==='usted';d.className='rounded-2xl px-3 py-2 text-sm leading-relaxed border '+(me?'bg-[#38e1ff]/10 border-[#38e1ff]/25 ml-8':'bg-white/5 border-white/10 mr-8');d.innerHTML='<span class="font-mono text-[10px] tracking-widest '+(me?'text-[#38e1ff]':'text-white/50')+'">'+who.toUpperCase()+'</span><br>'+text;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;if(who!=='usted')liveText.textContent='“'+text.slice(0,140)+'”';const k=$('#kFrases');if(who!=='usted')k.textContent=(+k.textContent+1);}
+function say(who,text){const d=document.createElement('div');const me=who==='usted';d.className='rounded-2xl px-3 py-2 text-sm leading-relaxed border '+(me?'bg-[#38e1ff]/10 border-[#38e1ff]/25 ml-8':'bg-white/5 border-white/10 mr-8');d.innerHTML='<span class="font-mono text-[10px] tracking-widest '+(me?'text-[#38e1ff]':'text-white/50')+'">'+who.toUpperCase()+'</span><br>'+text;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;if(who!=='usted')liveText.textContent='“'+text.slice(0,140)+'”';const k=$('#kFrases');if(who!=='usted')k.textContent=(+k.textContent+1);}try{detectarMapa(text);}catch(e){}
 function showToast(t){toast.textContent=t;toast.classList.remove('hidden');clearTimeout(showToast._t);showToast._t=setTimeout(()=>toast.classList.add('hidden'),2400);}
 function setStatus(s,color){statusEl.textContent=s;dot.style.background=color||'#38e1ff';dot.style.boxShadow='0 0 12px '+(color||'#38e1ff');$('#stMode').textContent=s;}
 
@@ -403,13 +408,14 @@ for(const u of urls){try{mod=await import(u);break;}catch(e){}}
 if(!mod||!mod.Conversation){setStatus('sin SDK','#ff6a5a');say('estratega','No pude cargar el SDK de voz (red bloqueada). Uso la demo local.');demoSpeak('Tome asiento. Soy el Estratega. Mientras se restablece la red, juguemos a ciegas: ¿qué pieza movería usted ahora?');return;}
 try{
 conv=await mod.Conversation.startSession({agentId,connectionType:'websocket',
+clientTools:{mostrar_mapa:async(p)=>{const l=(p&&p.lugar)||'Formosa';mostrarMapa(l);return 'Mapa satelital mostrado: '+l;}},
 onConnect:()=>{connected=true;setStatus('en vivo','#38e1ff');listening=true;sessionStart=Date.now();say('estratega','En línea. Lo escucho. Pregunte su jugada.');clearInterval(timerInt);timerInt=setInterval(()=>{const s=Math.floor((Date.now()-sessionStart)/1000);$('#kMin').textContent=String(Math.floor(s/60)).padStart(2,'0');},1000);syncUI(true);},
 onDisconnect:()=>{connected=false;listening=false;setStatus('en espera');syncUI(false);},
 onError:(e)=>{showToast('Error de voz: '+(e?.message||'desconocido'));},
 onModeChange:(m)=>{listening=m.mode==='listening';setStatus(m.mode==='speaking'?'hablando':m.mode==='listening'?'escuchando':'en vivo',m.mode==='speaking'?'#ff8a6a':'#38e1ff');},
 onMessage:(msg)=>{try{
 if(typeof msg==='string')return;
-const txt=msg.message||msg.text||msg.content||'';
+const txt=msg.message||msg.text||msg.content||'';if(txt){try{detectarMapa(txt);}catch(e){}}
 if((msg.source==='ai'||msg.source==='assistant'||msg.type==='agent_response')&&txt){say('estratega',txt);buildTimelineFromText(txt);}
 // alineación letra por letra si viene
 const chars=msg.chars||msg.alignment?.chars||msg.alignment?.characters;
@@ -501,6 +507,37 @@ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.targe
 // boot
 {const msgs=['Calibrando reactor…','Cargando tableros…','Sincronizando fonemas ES…','Enfocando mirada…'];let i=0;const iv=setInterval(()=>{$('#bootbar').style.width=((i+1)/msgs.length*100)+'%';$('#bootmsg').textContent=msgs[i];if(++i>=msgs.length){clearInterval(iv);setTimeout(()=>{$('#boot').style.display='none';say('estratega','Soy el Estratega. Tome asiento frente al tablero. ¿Empezamos por una apertura, una decisión difícil, o mi peor derrota?');},450);}},380);}
 addEventListener('keydown',e=>{if(e.key==='ArrowLeft')controls.autoRotateSpeed=-1.2;if(e.key==='ArrowRight')controls.autoRotateSpeed=1.2;});
-</script>
+
+// ---------- MODO MAPA: vista aerea real con el personaje al costado ----------
+const FORMOSA_LOCS=["departamento ramon lista","departamento matacos","departamento bermejo","departamento patino","departamento pilcomayo","departamento pilagas","departamento pirane","departamento laishi","departamento formosa","ingeniero juarez","comandante fontana","estanislao del campo","fortin lugones","general belgrano","general mosconi","general guemes","subteniente perin","mojon de fierro","laguna naineck","laguna blanca","pozo del tigre","villa dos trece","palo santo","riacho he-he","las lomitas","el colorado","herradura","mansilla","ibarreta","villafane","pirane","clorinda","formosa"];
+const MAP_TRIGGERS=["vista aerea","satelite","satelital","donde queda","ubicacion","mostrame","muestrame","llevame","localidad","territorio","desde arriba","como llegar","mapa","aerea"];
+function normTxt(t){return (t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");}
+const _locN=FORMOSA_LOCS.map(normTxt).sort((a,b)=>b.length-a.length);
+let mapLugar="";
+function mostrarMapa(q,z){
+  if(!q)return;
+  if(mapLugar&&normTxt(mapLugar)===normTxt(q)&&document.body.classList.contains("modo-mapa"))return;
+  const n=normTxt(q);
+  let full=q;
+  if(!/formosa/.test(n))full=q+", Formosa";
+  if(!/argentina/.test(normTxt(full)))full+=", Argentina";
+  z=z||(/provincia/.test(n)?8:(n.trim()==="formosa"?10:13));
+  const url="https://maps.google.com/maps?q="+encodeURIComponent(full)+"&t=k&z="+z+"&ie=UTF8&iwloc=&output=embed";
+  const fr=document.querySelector("#mapFrame");
+  fr.src=url;
+  document.querySelector("#mapCaption").textContent=q;
+  document.body.classList.add("modo-mapa");
+  showToast("Vista a\u00e9rea: "+q);
+  mapLugar=q;
+}
+function ocultarMapa(){document.body.classList.remove("modo-mapa");const fr=document.querySelector("#mapFrame");if(fr)fr.src="about:blank";mapLugar="";}
+function detectarMapa(texto){
+  const t=normTxt(texto);
+  if(!t||t.length<4)return;
+  for(const l of _locN){if(l&&t.includes(l)){mostrarMapa(l);return;}}
+  if(/formosa/.test(t)&&MAP_TRIGGERS.some(k=>t.includes(k))){mostrarMapa("Provincia de Formosa",8);}
+}
+document.querySelector("#btnMap").onclick=()=>{document.body.classList.contains("modo-mapa")?ocultarMapa():mostrarMapa("Provincia de Formosa",8);};
+document.querySelector("#btnMapClose").onclick=ocultarMapa;</script>
 </body>
 </html>
