@@ -51,7 +51,7 @@ input:focus{border-color:rgba(56,225,255,.6)!important;box-shadow:0 0 0 4px rgba
 #mapWrap{display:none;position:absolute;top:0;right:0;bottom:0;width:62%;z-index:15;background:#04070c;border-left:1px solid rgba(56,225,255,.18)}
 body.modo-mapa #mapWrap{display:block}
 #mapFrame{position:absolute;inset:0;width:100%;height:100%;border:0}
-#mapBar{position:absolute;top:10px;left:10px;right:10px;display:flex;gap:8px;align-items:center;z-index:2}
+#mapBar{position:absolute;top:auto;bottom:12px;left:10px;right:10px;display:flex;gap:8px;align-items:center;z-index:2}
 @media(max-width:900px){body.modo-mapa #mapWrap{top:auto;left:0;right:0;bottom:0;width:100%;height:52%}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
@@ -101,7 +101,7 @@ body.modo-mapa #mapWrap{display:block}
 <div id="portraitGlow"></div>
 <div class="cine-vignette"></div>
 <div class="scanline"></div>
-</div><div id="mapWrap"><iframe id="mapFrame" title="Vista aérea" loading="lazy" allowfullscreen></iframe><div id="mapBar"><span id="mapCaption" class="eyebrow">Formosa</span><button id="btnMapClose" class="btn-ghost pill px-3 py-1.5 text-sm">Cerrar mapa</button></div></div><div id="toast" class="absolute left-1/2 -translate-x-1/2 bottom-24 bg-black/80 border border-[#38e1ff]/30 text-sm px-4 py-2 rounded-full hidden whitespace-nowrap"></div>
+</div><div id="mapWrap"><iframe id="mapFrame" title="Vista aérea" loading="lazy" allowfullscreen></iframe><div id="mapBar"><span id="mapCaption" class="eyebrow">Formosa</span><button id="btnZoomIn" class="btn-ghost pill px-3 py-1.5 text-sm">+</button><button id="btnZoomOut" class="btn-ghost pill px-3 py-1.5 text-sm">-</button><button id="btnMapClose" class="btn-ghost pill px-3 py-1.5 text-sm">Cerrar mapa</button></div></div><div id="toast" class="absolute left-1/2 -translate-x-1/2 bottom-24 bg-black/80 border border-[#38e1ff]/30 text-sm px-4 py-2 rounded-full hidden whitespace-nowrap"></div>
 </div>
 <div class="px-5 py-4 border-t border-white/10 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[11px] text-white/60">
 <span>BOCA <span class="text-white">A·E·O·M</span> por letra + energía real</span>
@@ -408,7 +408,7 @@ for(const u of urls){try{mod=await import(u);break;}catch(e){}}
 if(!mod||!mod.Conversation){setStatus('sin SDK','#ff6a5a');say('estratega','No pude cargar el SDK de voz (red bloqueada). Uso la demo local.');demoSpeak('Tome asiento. Soy el Estratega. Mientras se restablece la red, juguemos a ciegas: ¿qué pieza movería usted ahora?');return;}
 try{
 conv=await mod.Conversation.startSession({agentId,connectionType:'websocket',
-clientTools:{mostrar_mapa:async(p)=>{const l=(p&&p.lugar)||'Formosa';mostrarMapa(l);return 'Mapa satelital mostrado: '+l;}},
+clientTools:{mostrar_mapa:async(p)=>{const l=(p&&p.lugar)||'Formosa';mostrarMapa(l);return 'Mapa satelital mostrado: '+l;},mapa_zoom:async(p)=>{const d=String((p&&(p.direccion||p.dir))||'in').toLowerCase();if(d.indexOf('out')>=0||d.indexOf('alej')>=0||d.indexOf('lejos')>=0)mapZoomDelta(-2);else mapZoomDelta(2);return 'Zoom '+mapZoom;}},
 onConnect:()=>{connected=true;setStatus('en vivo','#38e1ff');listening=true;sessionStart=Date.now();say('estratega','En línea. Lo escucho. Pregunte su jugada.');clearInterval(timerInt);timerInt=setInterval(()=>{const s=Math.floor((Date.now()-sessionStart)/1000);$('#kMin').textContent=String(Math.floor(s/60)).padStart(2,'0');},1000);syncUI(true);},
 onDisconnect:()=>{connected=false;listening=false;setStatus('en espera');syncUI(false);},
 onError:(e)=>{showToast('Error de voz: '+(e?.message||'desconocido'));},
@@ -513,7 +513,9 @@ const FORMOSA_LOCS=["departamento ramon lista","departamento matacos","departame
 const MAP_TRIGGERS=["vista aerea","satelite","satelital","donde queda","ubicacion","mostrame","muestrame","llevame","localidad","territorio","desde arriba","como llegar","mapa","aerea"];
 function normTxt(t){return (t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");}
 const _locN=FORMOSA_LOCS.map(normTxt).sort((a,b)=>b.length-a.length);
-let mapLugar="";
+let mapLugar="";let mapFull="";let mapZoom=13;
+function mapURL(){return "https://maps.google.com/maps?q="+encodeURIComponent(mapFull)+"&t=k&z="+mapZoom+"&ie=UTF8&iwloc=&output=embed";}
+function mapZoomDelta(d){mapZoom=Math.min(20,Math.max(3,mapZoom+d));const fr=document.querySelector("#mapFrame");if(fr&&mapFull)fr.src=mapURL();showToast("Zoom "+mapZoom);}
 function mostrarMapa(q,z){
   if(!q)return;
   if(mapLugar&&normTxt(mapLugar)===normTxt(q)&&document.body.classList.contains("modo-mapa"))return;
@@ -522,22 +524,41 @@ function mostrarMapa(q,z){
   if(!/formosa/.test(n))full=q+", Formosa";
   if(!/argentina/.test(normTxt(full)))full+=", Argentina";
   z=z||(/provincia/.test(n)?8:(n.trim()==="formosa"?10:13));
-  const url="https://maps.google.com/maps?q="+encodeURIComponent(full)+"&t=k&z="+z+"&ie=UTF8&iwloc=&output=embed";
+  mapFull=full;mapZoom=z;
+  const url=mapURL();
   const fr=document.querySelector("#mapFrame");
   fr.src=url;
   document.querySelector("#mapCaption").textContent=q;
   document.body.classList.add("modo-mapa");
   showToast("Vista a\u00e9rea: "+q);
   mapLugar=q;
+  try{
+    camera.position.copy(homePos);controls.target.copy(homeTg);
+    const _d=camera.position.distanceTo(controls.target);
+    const _w=2*_d*Math.tan(camera.fov*Math.PI/360)*camera.aspect;
+    const _h=2*_d*Math.tan(camera.fov*Math.PI/360);
+    const _right=new THREE.Vector3().setFromMatrixColumn(camera.matrix,0);
+    const _up=new THREE.Vector3().setFromMatrixColumn(camera.matrix,1);
+    const _off=camera.aspect>1?_right.multiplyScalar(_w*0.31):_up.multiplyScalar(_h*0.26);
+    camera.position.add(_off);controls.target.add(_off);
+  }catch(e){}
 }
-function ocultarMapa(){document.body.classList.remove("modo-mapa");const fr=document.querySelector("#mapFrame");if(fr)fr.src="about:blank";mapLugar="";}
+function ocultarMapa(){document.body.classList.remove("modo-mapa");try{frontView();}catch(e){}const fr=document.querySelector("#mapFrame");if(fr)fr.src="about:blank";mapLugar="";}
 function detectarMapa(texto){
   const t=normTxt(texto);
   if(!t||t.length<4)return;
-  for(const l of _locN){if(l&&t.includes(l)){mostrarMapa(l);return;}}
+  let found=null;
+  for(const l of _locN){if(l&&t.includes(l)){found=l;break;}}
+  const zin=/acerc|mas cerca|amplia|ampli|zoom in|zoom$|^zoom | zoom/.test(t)&&!/alej|lejos|achica|zoom out|reduce/.test(t);
+  const zout=/alej|lejos|achica|reduce|zoom out/.test(t);
+  if(found){mostrarMapa(found);if(zin)mapZoomDelta(2);else if(zout)mapZoomDelta(-2);return;}
+  if((zin||zout)&&document.body.classList.contains("modo-mapa")){mapZoomDelta(zin?2:-2);return;}
+  if(zin||zout){mostrarMapa("Provincia de Formosa",8);return;}
   if(/formosa/.test(t)&&MAP_TRIGGERS.some(k=>t.includes(k))){mostrarMapa("Provincia de Formosa",8);}
 }
 document.querySelector("#btnMap").onclick=()=>{document.body.classList.contains("modo-mapa")?ocultarMapa():mostrarMapa("Provincia de Formosa",8);};
-document.querySelector("#btnMapClose").onclick=ocultarMapa;</script>
+document.querySelector("#btnMapClose").onclick=ocultarMapa;
+document.querySelector("#btnZoomIn").onclick=()=>mapZoomDelta(2);
+document.querySelector("#btnZoomOut").onclick=()=>mapZoomDelta(-2);</script>
 </body>
 </html>
