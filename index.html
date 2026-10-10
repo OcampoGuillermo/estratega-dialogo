@@ -80,7 +80,7 @@ input:focus{border-color:rgba(56,225,255,.6)!important;box-shadow:0 0 0 4px rgba
 <button id="btnTalk" class="btn-primary pill pl-4 pr-1.5 py-1.5 font-bold text-sm group flex items-center gap-2">HABLAR <span class="icon-circle">↗</span></button>
 </div>
 </div></nav>
-</header><div class="relative z-20 px-3 pt-1 pb-2 flex justify-center"><div class="flex flex-wrap items-center justify-center gap-1.5 max-w-3xl"><button id="btnTalk2" class="btn-primary pill px-3 py-1.5 text-sm font-bold group flex items-center gap-2">Hablar <span class="icon-circle">◉</span></button><button id="btnDemo" class="btn-ghost pill px-3 py-1.5 text-sm">Demo</button><button id="btnFront" class="btn-ghost pill px-3 py-1.5 text-sm">Frente</button><button id="btnJaw" class="btn-ghost pill px-3 py-1.5 text-sm">Boca</button><button id="btnFace" class="btn-ghost pill px-3 py-1.5 text-sm">Cara</button><button id="btnPortrait" class="btn-ghost pill px-3 py-1.5 text-sm" style="display:none">Retrato</button><span class="font-mono text-[10px] text-white/50 px-2">tono: <span id="mood" class="text-[#9be9ff]">—</span></span><div id="wave" style="display:none"></div><div style="display:none"><span id="stReactor">98%</span><span id="stMode">listo</span></div></div>
+</header>
 
 <!-- MAIN -->
 <main class="relative z-10 max-w-[1500px] mx-auto px-3 pb-16 pt-5">
@@ -88,7 +88,7 @@ input:focus{border-color:rgba(56,225,255,.6)!important;box-shadow:0 0 0 4px rgba
 
 <!-- 3D -->
 <section class="bezel reveal in"><div class="bezel-core overflow-hidden relative" style="min-height:72dvh">
-<div id="wrap3d" class="relative w-full" style="height:72dvh;min-height:560px">
+<div id="wrap3d" class="relative w-full" style="height:78dvh;min-height:560px">
 <canvas id="stage"></canvas>
 <div id="portraitWrap"><img id="portraitBlur" alt="" aria-hidden="true">
 <img id="portrait" alt="El Estratega — retrato">
@@ -104,7 +104,7 @@ input:focus{border-color:rgba(56,225,255,.6)!important;box-shadow:0 0 0 4px rgba
 <span>COARTICULACIÓN <span class="text-white">activa</span></span>
 <span>TRANSPARENCIA <span class="text-[#9be9ff]">recreación con IA</span></span>
 </div>
-</div></section>
+</div></section><div style="display:flex;justify-content:center;padding:10px 12px;position:relative;z-index:20;width:100%"><div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;max-width:900px;width:100%"><button id="btnTalk2" class="btn-primary pill px-3 py-1.5 text-sm font-bold group flex items-center gap-2">Hablar <span class="icon-circle">◉</span></button><button id="btnDemo" class="btn-ghost pill px-3 py-1.5 text-sm">Demo</button><button id="btnFront" class="btn-ghost pill px-3 py-1.5 text-sm">Frente</button><button id="btnJaw" class="btn-ghost pill px-3 py-1.5 text-sm">Boca</button><button id="btnFace" class="btn-ghost pill px-3 py-1.5 text-sm">Cara</button><button id="btnPortrait" class="btn-ghost pill px-3 py-1.5 text-sm" style="display:none">Retrato</button><span class="font-mono text-[10px] text-white/50 px-2">tono: <span id="mood" class="text-[#9be9ff]">—</span></span><div id="wave" style="display:none"></div><div style="display:none"><span id="stReactor">98%</span><span id="stMode">listo</span></div></div>
 
 <!-- RIGHT HUD -->
 <aside class="flex flex-col gap-4 hud-right" id="chatPanel">
