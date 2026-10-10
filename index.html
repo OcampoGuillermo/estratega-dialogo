@@ -312,7 +312,7 @@ const queen=new THREE.Group();{const b=new THREE.Mesh(new THREE.CylinderGeometry
 // ---------- AVATAR .GLB REALISTA (si existe, reemplaza al procedural) ----------
 // Genera el modelo con Meshy.ai / Tripo AI (image-to-3D) desde tu foto y guárdalo como assets/estratega.glb
 let avatarGLB=null;const morphMeshes=[];let mixer=null;const mixClips=[];
-(async function tryLoadAvatar(){const urls=['assets/estratega-rig.glb?v=20261009h','assets/estratega.glb','assets/stratega.glb'];for(const u of urls){try{
+(async function tryLoadAvatar(){const urls=['assets/estratega-rig.glb?v=20261009j','assets/estratega.glb','assets/stratega.glb'];for(const u of urls){try{
 const gltf=await new GLTFLoader().loadAsync(u);avatarGLB=gltf.scene;
 avatarGLB.traverse(o=>{if(o.isMesh){o.castShadow=true;if(o.morphTargetDictionary)morphMeshes.push(o);}});
 const box=new THREE.Box3().setFromObject(avatarGLB);const size=box.getSize(new THREE.Vector3());const c=box.getCenter(new THREE.Vector3());
