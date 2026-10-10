@@ -80,7 +80,7 @@ input:focus{border-color:rgba(56,225,255,.6)!important;box-shadow:0 0 0 4px rgba
 <button id="btnTalk" class="btn-primary pill pl-4 pr-1.5 py-1.5 font-bold text-sm group flex items-center gap-2">HABLAR <span class="icon-circle">↗</span></button>
 </div>
 </div></nav>
-</header>
+</header><div class="relative z-20 px-3 pt-1 pb-2 flex justify-center"><div class="flex flex-wrap items-center justify-center gap-1.5 max-w-3xl"><button id="btnTalk2" class="btn-primary pill px-3 py-1.5 text-sm font-bold group flex items-center gap-2">Hablar <span class="icon-circle">◉</span></button><button id="btnDemo" class="btn-ghost pill px-3 py-1.5 text-sm">Demo</button><button id="btnFront" class="btn-ghost pill px-3 py-1.5 text-sm">Frente</button><button id="btnJaw" class="btn-ghost pill px-3 py-1.5 text-sm">Boca</button><button id="btnFace" class="btn-ghost pill px-3 py-1.5 text-sm">Cara</button><button id="btnPortrait" class="btn-ghost pill px-3 py-1.5 text-sm" style="display:none">Retrato</button><span class="font-mono text-[10px] text-white/50 px-2">tono: <span id="mood" class="text-[#9be9ff]">—</span></span><div id="wave" style="display:none"></div><div style="display:none"><span id="stReactor">98%</span><span id="stMode">listo</span></div></div>
 
 <!-- MAIN -->
 <main class="relative z-10 max-w-[1500px] mx-auto px-3 pb-16 pt-5">
@@ -96,28 +96,7 @@ input:focus{border-color:rgba(56,225,255,.6)!important;box-shadow:0 0 0 4px rgba
 <div id="portraitGlow"></div>
 <div class="cine-vignette"></div>
 <div class="scanline"></div>
-<!-- HUD overlay -->
-<div class="absolute top-4 left-4 flex flex-col gap-2 pointer-events-none">
-<div class="eyebrow">Sala privada · 21:47 ·En línea</div>
-<div class="font-mono text-[10px] text-white/60 bg-black/50 border border-white/10 rounded-full px-3 py-1.5">Arrastra 360° · rueda zoom · ← → girar · <button id="btnFront2" class="underline text-[#9be9ff] pointer-events-auto">volver al frente</button></div>
-</div>
-<div class="absolute top-4 right-4 flex gap-2">
-<div class="bg-black/60 border border-white/10 rounded-2xl px-3 py-2 font-mono text-[10px] leading-relaxed text-right">REACTOR <span id="stReactor" class="text-[#38e1ff]">98%</span><br>MOTOR <span class="text-[#9be9ff]">eleven_flash</span><br>MODO <span id="stMode" class="text-[#ffd28a]">listo</span></div>
-</div>
-<!-- bottom controls -->
-<div class="absolute bottom-4 left-4 right-4">
-<div class="bezel !rounded-2xl"><div class="bezel-core !rounded-2xl p-3 flex flex-wrap items-center gap-2">
-<div class="flex items-end gap-[3px] h-8 px-2" id="wave" aria-hidden="true"></div>
-<button id="btnTalk2" class="btn-primary pill px-5 py-2.5 text-sm font-bold group flex items-center gap-2">Hablar <span class="icon-circle">◉</span></button>
-<button id="btnDemo" class="btn-ghost pill px-4 py-2.5 text-sm">Escucharlo sin conectarse</button>
-<button id="btnFront" class="btn-ghost pill px-4 py-2.5 text-sm">Volver al frente</button>
-<button id="btnJaw" class="btn-ghost pill px-4 py-2.5 text-sm">Probar boca</button>
-<button id="btnFace" class="btn-ghost pill px-4 py-2.5 text-sm">Plano cara</button>
-<button id="btnPortrait" class="btn-ghost pill px-4 py-2.5 text-sm" style="display:none">Retrato real</button>
-<div class="ml-auto font-mono text-[10px] text-white/50 hidden lg:block">mic + voz ElevenLabs · <span class="text-white/80">texto también abajo</span> · tono: <span id="mood" class="text-[#9be9ff]">—</span></div>
-</div></div>
-</div>
-<div id="toast" class="absolute left-1/2 -translate-x-1/2 bottom-24 bg-black/80 border border-[#38e1ff]/30 text-sm px-4 py-2 rounded-full hidden whitespace-nowrap"></div>
+</div><div id="toast" class="absolute left-1/2 -translate-x-1/2 bottom-24 bg-black/80 border border-[#38e1ff]/30 text-sm px-4 py-2 rounded-full hidden whitespace-nowrap"></div>
 </div>
 <div class="px-5 py-4 border-t border-white/10 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[11px] text-white/60">
 <span>BOCA <span class="text-white">A·E·O·M</span> por letra + energía real</span>
@@ -458,7 +437,7 @@ $('#btnDemo').onclick=()=>demoSpeak();$('#btnDemoTop').onclick=()=>demoSpeak();
 function flyTo(p1,t1,ms){const p0=camera.position.clone(),t0=controls.target.clone();ms=ms||900;const s=performance.now();(function step(n){const k=Math.min(1,(n-s)/ms);const e=1-Math.pow(1-k,3);camera.position.lerpVectors(p0,p1,e);controls.target.lerpVectors(t0,t1,e);if(k<1)requestAnimationFrame(step);})(s);}
 function frontView(){flyTo(homePos.clone(),homeTg.clone());}
 function faceView(){flyTo(facePos.clone(),faceTg.clone(),700);}
-$('#btnFront').onclick=frontView;$('#btnFront2').onclick=frontView;$('#btnFace').onclick=faceView;
+$('#btnFront').onclick=frontView;const _b2=$('#btnFront2');if(_b2)_b2.onclick=frontView;$('#btnFace').onclick=faceView;
 let jawTest=null;
 $('#btnJaw').onclick=()=>{jawTest=performance.now();faceView();showToast('Moviendo mandíbula 2s…');};
 // drawer
