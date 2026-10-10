@@ -208,11 +208,12 @@ const bloom=new UnrealBloomPass(new THREE.Vector2(960,600),0.5,0.65,0.8);
 composer.addPass(bloom);composer.addPass(new OutputPass());
 function resize(){const w=wrap.clientWidth,h=wrap.clientHeight;renderer.setSize(w,h,false);composer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}
 new ResizeObserver(resize).observe(wrap);resize();
-scene.add(new THREE.AmbientLight(0x8fb8c8,0.35));
+scene.add(new THREE.AmbientLight(0x8fb8c8,0.55));
 const key=new THREE.DirectionalLight(0xffb37a,2.4);key.position.set(-3,3.4,3);key.castShadow=true;key.shadow.mapSize.set(1024,1024);scene.add(key);
 const rim=new THREE.DirectionalLight(0x38e1ff,3.0);rim.position.set(3,2.2,-2);scene.add(rim);
 const under=new THREE.PointLight(0xff2a1a,6,8);under.position.set(0,0.4,1.2);scene.add(under);
-const faceKey=new THREE.SpotLight(0xffd9b0,30,14,0.5,0.65,1.6);faceKey.position.set(1.1,2.7,3.2);scene.add(faceKey);scene.add(faceKey.target);faceKey.target.position.set(0,1.55,0);
+const faceKey=new THREE.SpotLight(0xffd9b0,48,14,0.5,0.65,1.6);
+const chinFill=new THREE.PointLight(0x9fd8ff,5,7);chinFill.position.set(0,1.05,2.6);scene.add(chinFill);faceKey.position.set(1.1,2.7,3.2);scene.add(faceKey);scene.add(faceKey.target);faceKey.target.position.set(0,1.55,0);
 const practicalL=new THREE.PointLight(0xff7a3c,8,7);practicalL.position.set(-2.6,2.6,-1.5);scene.add(practicalL);
 const practicalR=new THREE.PointLight(0x2fb9ff,8,7);practicalR.position.set(2.6,2.6,-1.5);scene.add(practicalR);
 
@@ -227,7 +228,7 @@ const backCanvas=mansionTex();
 const backTex=new THREE.CanvasTexture(backCanvas);backTex.colorSpace=THREE.SRGBColorSpace;
 const backMat=new THREE.MeshBasicMaterial({map:backTex});
 const backScreen=new THREE.Mesh(new THREE.PlaneGeometry(11,5.6),backMat);backScreen.position.set(0,2.3,-5);scene.add(backScreen);
-new THREE.TextureLoader().load('assets/referencia.jpg',t=>{t.colorSpace=THREE.SRGBColorSpace;backMat.map=t;backMat.color.set(0x9a9a9a);backMat.needsUpdate=true;},undefined,()=>{});
+/* fondo mansion fijo (sin foto) */void 0
 // velvet curtains
 function curtainTex(){const c=document.createElement('canvas');c.width=256;c.height=512;const g=c.getContext('2d');for(let x=0;x<256;x++){const v=Math.sin(x/256*Math.PI*9)*0.5+0.5;const r=40+v*90;g.fillStyle='rgb('+(r|0)+',8,10)';g.fillRect(x,0,1,512);}g.fillStyle='rgba(216,179,106,.8)';g.fillRect(0,0,256,10);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;}
 const curT=curtainTex();
